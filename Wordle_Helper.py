@@ -1,3 +1,14 @@
+# Imported Libraries
+import re
+
+# Importing the dictionary file and creating a list of all the words in the dictionary
+file = open("american-english", "r")
+words = file.read().split()
+file.close()
+    
+def is_word(word):
+    return word.lower() in words
+
 # All Initial Variables
 g_list = [None]*5
 alphabet_list = list(map(chr, range(ord('a'), ord('z')+1)))
@@ -64,7 +75,8 @@ while loop:
             loop = True
             gen_index_list[i]+=1
             break
-    all_words_list.append(temp_word)
+    if "".join(temp_word) in words:
+        all_words_list.append(temp_word)
 
 for i in all_words_list:
     del_flag = False
@@ -83,5 +95,3 @@ print("All remaining words after filtering: ")
 for i in all_words_list:
     word = ''.join(i)
     print(word)
-
-    
