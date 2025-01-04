@@ -12,29 +12,9 @@ def is_word(word):
 # All Initial Variables
 g_list = [None]*5
 alphabet_list = list(map(chr, range(ord('a'), ord('z')+1)))
-y_list, b_list, remaining_green_indeces, gen_index_list, all_words_list, delete_list = ([] for i in range(6))
+b_list, remaining_green_indeces, gen_index_list, all_words_list = ([] for i in range(4))
+final_loop = True
 
-
-# Initial loop to take Wordle guess and make sure it is valid
-while True:
-    guess = input('Please enter your 5 letter Wordle Guess:\n')
-    if len(guess)==5 and guess.isalpha():
-        break
-    print('Guess must be 5 letters long and only be made up of Alphabet Characters. Try Again')
-# Takes user input to determine the colors of all the letters in the guess
-for index, item in enumerate(guess):
-    while True:
-        color=input(f"Please enter the color of the following letter: {item}\nEnter either g for green, y for yellow, and n for neither\n")
-        if (color not in ['g','y','n']):
-            print("Please pick a valid color")
-        else:
-            match color:
-                case 'g':
-                    g_list[index] = item
-                    y_list.append(item)
-                case 'y':
-                    y_list.append(item)
-            break
 # Take a list of letters that have been confirmed greyed out
 while True:
     grey_letter = input("Please enter letters that have been greyed out below. enter \'done\' when you are finished: \n")
@@ -52,46 +32,58 @@ for i in b_list:
     alphabet_list.remove(i)
 print("Alphabet List after letter removal: \n", str(alphabet_list))
 
-# Go through green letter list to determine what characters need to be filled in
-for index, item in enumerate(g_list):
-    if item == None:
-        remaining_green_indeces.append(index)
-        gen_index_list.append(0)
-        
-# Generate a big list based on green letters
-loop = True
-while loop:
-    temp_word = g_list.copy()
-    #print(temp_word)
-    for i in range(len(remaining_green_indeces)):
-        #print(f"remaining_green_indeces:\n{remaining_green_indeces}\ngen_index_list\n{gen_index_list}")
-        temp_word[remaining_green_indeces[i]]= alphabet_list[gen_index_list[i]]
-    for i in range(len(gen_index_list)):
-        if gen_index_list[i] == (len(alphabet_list)-1):
-            loop = False
-            gen_index_list[i] = 0
-            continue
-        else:
-            loop = True
-            gen_index_list[i]+=1
+# Loop to keep taking guesses and provide possible words
+while final_loop:
+    # Initial loop to take Wordle guess and make sure it is valid
+    while True:
+        guess = input('Please enter your 5 letter Wordle Guess in the following form:\nLetters for fixed characters and symbols or numbers for characters to be filled in\n')
+        if len(guess)==5:
             break
-    if "".join(temp_word) in words:
-        all_words_list.append(temp_word)
+        print('Guess must be 5 letters long Try Again')
+    # Takes user input to determine the colors of all the letters in the guess
+    for index, item in enumerate(guess):
+        if item.isalpha():
+            g_list[index] = item.lower()
 
-for i in all_words_list:
-    del_flag = False
-    for j in y_list:
-        if j in i:
-            continue
+    # Go through green letter list to determine what characters need to be filled in
+    for index, item in enumerate(g_list):
+        if item == None:
+            remaining_green_indeces.append(index)
+            gen_index_list.append(0)
+            
+    # Generate a big list based on green letters
+    loop = True
+    while loop:
+        temp_word = g_list.copy()
+        #print(temp_word)
+        for i in range(len(remaining_green_indeces)):
+            #print(f"remaining_green_indeces:\n{remaining_green_indeces}\ngen_index_list\n{gen_index_list}")
+            temp_word[remaining_green_indeces[i]]= alphabet_list[gen_index_list[i]]
+        for i in range(len(gen_index_list)):
+            if gen_index_list[i] == (len(alphabet_list)-1):
+                loop = False
+                gen_index_list[i] = 0
+                continue
+            else:
+                loop = True
+                gen_index_list[i]+=1
+                break
+        if "".join(temp_word) in words:
+            all_words_list.append(temp_word)
+
+    print("All remaining words: ")
+    for i in all_words_list:
+        word = ''.join(i)
+        print(word)
+    while True:
+        final = input("Would you like to continue guessing? (yes or no)\n")
+        if final == 'yes':
+            final_loop = True
+            g_list = [None]*5
+            remaining_green_indeces, gen_index_list, all_words_list = ([] for i in range(3))
+            break
+        elif final == 'no':
+            final_loop = False
+            break
         else:
-            del_flag = True
-    if del_flag:
-        delete_list.append(i)
-
-for i in delete_list:
-    all_words_list.remove(i)
-
-print("All remaining words after filtering: ")
-for i in all_words_list:
-    word = ''.join(i)
-    print(word)
+            print("Please enter either yes or no")
